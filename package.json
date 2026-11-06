@@ -12,7 +12,8 @@
     "next": "15.5.28",
     "react": "19.1.7",
     "react-dom": "19.1.7",
-    "jszip": "^3.10.1"
+    "jszip": "^3.10.1",
+    "@neondatabase/serverless": "^1.0.2"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
