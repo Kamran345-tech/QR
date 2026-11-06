@@ -1,44 +1,47 @@
 # Suthra Punjab Beat QR Management
 
-Responsive Next.js app for sanitation beat records, QR print sheets, public beat information and complaint intake.
+Next.js office dashboard prototype for managing sanitation beats, individual worker profiles, reusable TM/FMO/Supervisor contacts, QR print jobs and public beat information.
 
-## Current preview functionality
+## Implemented in the current UI
 
-- Beat create, edit, activate/deactivate, delete and search
-- QR generation and printable bilingual beat sheet
-- Public beat page opened from a QR link
-- Team and supervisor details, vehicle and Google Maps link
-- Public complaint form and complaint register
-- CSV export for beats and complaints
-- Browser localStorage demo mode
+- Beat create/edit/delete, activate/deactivate and search
+- Separate worker records: name, photo, designation, shift and attendance time
+- Reusable contact directory for TM, FMO and Supervisor; selecting a saved contact fills the linked phone automatically
+- Individual QR PNG download, QR print sheet and bulk ZIP download of all QR images
+- Public beat profile layout and complaint form
+- Complaint register and CSV export
+- Admin user/role/permission management interface (prototype only)
 
-## Important deployment status
+## Production blockers — read before office use
 
-The current UI preview uses browser localStorage. This is **not yet the production data mode**:
-- Browser records are not shared across devices or administrators.
-- Complaint submissions are saved only in the visitor's browser.
-- Photo selection currently records filenames only; it does not upload image bytes.
-- Admin authentication and role permissions are not implemented.
-- The Suthra Punjab logo is a temporary SP mark until the original logo can be extracted from the user's supplied sample.
+The current UI still uses browser localStorage. The admin login and permission interface is **not secure authentication** and must not be treated as access control. User-created accounts in this preview do not have securely provisioned passwords or server-enforced permissions.
 
-Do not use this demo with live citizen data or as an official complaint-management system until the database, secure photo storage, authentication and operational workflows are enabled.
+The public QR link currently serializes beat data into a URL. It is a preview mechanism, not a secure/shared data API. Worker photo data is not embedded in the QR URL because doing so would create oversized QR codes.
 
-## Neon / PostgreSQL preparation
+Before official use, complete all of the following:
+1. Connect Neon PostgreSQL and set `DATABASE_URL` in Vercel.
+2. Apply `database/schema.sql`.
+3. Implement server-side CRUD APIs for beats, workers, contacts, complaints and feedback.
+4. Implement secure admin authentication, password hashing, session cookies and server-side permission checks. Do not rely on localStorage or hidden UI controls for security.
+5. Connect secure object storage for worker and complaint photos; store only image URLs in PostgreSQL.
+6. Change QR payloads to stable public beat URLs (for example `/beat/<public-id>`) that fetch published beat data from the server.
+7. Test public complaint submission, admin permissions, backups and mobile QR scans across separate devices.
+8. Replace the temporary SP monogram with the original Suthra Punjab logo supplied by the user.
 
-1. Create or connect a Neon PostgreSQL database to the Vercel project.
-2. Add the Neon connection string as the encrypted Vercel environment variable `DATABASE_URL` for Production, Preview and Development.
-3. Apply `database/schema.sql` to create the beats, complaints and feedback tables.
-4. Implement and test the server-side database adapter and admin authentication before enabling shared mode.
+## Database
 
-## Local development
+The schema now separates:
+- `office_contacts`: reusable TM, FMO and Supervisor directory
+- `beats`: beat identity and linked contacts
+- `beat_workers`: one row per worker, including photo URL and attendance/shift fields
+- `admin_users` and `admin_sessions`: secure account/session storage foundations
+- `complaints` and `feedback`
+
+## Development
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Deploy
-
-The GitHub repository is linked to Vercel. Pushes to `main` trigger deployments.
-
-Project: https://vercel.com/pdfue/suthra-punjab-beat-qr
+Do not enter live citizen personal data into the browser-only preview.
