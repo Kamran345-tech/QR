@@ -158,3 +158,40 @@ export async function saveComplaintRecord(complaint: ComplaintRecord, beatId?: s
   });
   if (error) throw error;
 }
+
+export async function loadPublicBeat(beatId: string) {
+  const supabase = getSupabaseBrowserClient();
+  const [beatResult, contactResult] = await Promise.all([
+    supabase.from("beats").select("*, beat_workers(*)").eq("id", beatId).eq("status", "Active").maybeSingle(),
+    supabase.from("office_contacts").select("*").eq("is_active", true).order("full_name"),
+  ]);
+  if (beatResult.error) throw beatResult.error;
+  if (contactResult.error) throw contactResult.error;
+  if (!beatResult.data) return null;
+  const row: any = beatResult.data;
+  const contacts = (contactResult.data || []).map((c: any) => ({ id: c.id, name: c.full_name, phone: c.phone, role: c.role }));
+  const beat: BeatRecord = {
+    id: row.id, beat: row.beat_number, uc: row.union_council, tehsil: row.tehsil,
+    district: row.district, status: row.status, mapUrl: row.map_url || "",
+    vehicle: row.assigned_vehicle || "", tmId: row.tm_contact_id || "",
+    fmoId: row.fmo_contact_id || "", supervisorId: row.supervisor_contact_id || "",
+    updatedAt: row.updated_at,
+    workers: (row.beat_workers || []).map((w: any) => ({
+      id: w.id, name: w.full_name, photo: w.photo_url || "",
+      designation: w.designation, shift: w.shift, attendance: w.attendance_time || "",
+    })),
+  };
+  return { beat, contacts };
+}
+export async function updateBeatStatus(id: string, status: "Active" | "Inactive") {
+  const { error } = await getSupabaseBrowserClient().from("beats").update({ status }).eq("id", id);
+  if (error) throw error;
+}
+export async function deleteBeatRecord(id: string) {
+  const { error } = await getSupabaseBrowserClient().from("beats").delete().eq("id", id);
+  if (error) throw error;
+}
+export async function deleteContactRecord(id: string) {
+  const { error } = await getSupabaseBrowserClient().from("office_contacts").delete().eq("id", id);
+  if (error) throw error;
+}
