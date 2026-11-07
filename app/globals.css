@@ -59,3 +59,11 @@
  .qr-card{align-items:flex-start}
 }
 @media(prefers-reduced-motion:reduce){.sidebar{transition:none}}
+
+/* Unified professional typography and form field treatment */
+:root{--font-ui:"DM Sans",Arial,sans-serif}
+html,body,button,input,select,textarea,table{font-family:var(--font-ui)}
+.field label,.public-form label{font-size:12px;font-weight:600;letter-spacing:0;color:#405348}
+.field input,.field select,.field textarea,.worker-fields input,.worker-fields select,.toolbar input,.public-form input,.public-form select,.public-form textarea{font-family:var(--font-ui);font-size:13px;font-weight:400;color:#17251d;line-height:1.45}
+.field input::placeholder,.toolbar input::placeholder{font-size:13px;color:#89958d}
+.actions button,.btn{font-family:var(--font-ui);font-size:12px}
